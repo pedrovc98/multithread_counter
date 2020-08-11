@@ -3,7 +3,7 @@
 #include <time.h>
 #include <pthread.h>
 
-#define n_threads 4
+unsigned long int numbers[100]; /* Vetor de números lidos */
 int p = 0; /* Variável para guardar a quantidade identificada de números primos */
 
 int digit(char a){ /* função que converte digito (em char) para int */
@@ -34,22 +34,27 @@ int prime(int a){ /*função que verifica se um número é primo */
 
 void* funcao_thread(void *arg) {
   int* N = (int*)arg;
-
+  /*
   printf("Estou na thread %d!\n", *N);
   for (unsigned int i=0; i<5000000; i++);
   printf("Saindo da thread %d!\n", *N);
+  */
+  if(prime(numbers[*N])) p = p+1; 
+
   return NULL;
 }
 
 int main() {
 
   char str[100];
-  unsigned long int numbers[100];
   unsigned long int n = 0;
-  int i, j = 0;
+  int i = 0;
+  int j = 0;
+  int k = 0;
   int counter = 0;
-  pthread_t threads[n_threads];
-  int thread_args[n_threads];
+  pthread_t threads[4];
+  int thread_args[4];
+  int n_threads = 4;
  
 /* Passo 1: Ler a string */ 
   fgets(str, sizeof(str), stdin);
@@ -84,8 +89,15 @@ int main() {
 
 /* Primeiros testes para criação de threads */
 
-  for (int i = 0; i < (n_threads); i++) {
-    thread_args[i] = i;
+k = j; 
+
+while(k>0){  /* k representa a quantidade de números que falta para analisar */
+
+  if(k>=4) n_threads = 4;
+  if(k<4) n_threads = k;
+
+  for (int i = 0; i <n_threads; i++) {
+    thread_args[i] = k-i-1;
     pthread_create(&(threads[i]), NULL, funcao_thread, &(thread_args[i]));
   }
 
@@ -93,6 +105,15 @@ int main() {
   for (int i = 0; i < n_threads; i++) {
     pthread_join(threads[i], NULL);
   }
+
+k = k-4;
+
+}
+ 
+/* Passo 4 - Imprimir resultado */
+/* Imprime quantidade identificada de números primos */
+printf("%d\n", p );
+
 
   return 0;
 }
